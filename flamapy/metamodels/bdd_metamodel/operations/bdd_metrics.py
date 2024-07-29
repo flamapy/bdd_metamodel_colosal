@@ -24,7 +24,6 @@ def metric_method(func: Callable[..., Any]) -> Callable[..., Any]:
 
 
 class BDDMetrics(Metrics): 
-    # pylint: disable=too-many-instance-attributes
     def __init__(self) -> None:
         super().__init__()
         self.model: Optional[VariabilityModel] = None
