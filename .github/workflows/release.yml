@@ -13,14 +13,6 @@ jobs:
       - name: Checkout git repo
         uses: actions/checkout@v2
 
-      - name: Automated Version Bump
-        id: changelog
-        uses: Requarks/changelog-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{github.ref_name}}
-          writeToFile: 'false'
-
       - name: Get variables
         id: get_variables
         run: |
