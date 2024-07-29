@@ -1,0 +1,16 @@
+build
+env
+htmlcov
+flamapy/metamodels
+
+*.pyc
+__pycache__
+.coverage
+tags
+
+venv
+.idea
+.DS_Store
+*.egg-info*
+.vscode*
+.swp
