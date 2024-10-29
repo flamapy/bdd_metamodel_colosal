@@ -91,7 +91,6 @@ def feature_inclusion_probability(bdd_model: BDDModel,
     probabilities = {}
     for line in line_iterator:
         parsed_line = re.compile(r'\s+').split(line.strip())
-        print(f'Feature: {parsed_line[0]}')
         original_feature_name = bdd_model.features_names.get(parsed_line[0])
         probabilities[original_feature_name] = round(float(parsed_line[1]), precision)
     return probabilities

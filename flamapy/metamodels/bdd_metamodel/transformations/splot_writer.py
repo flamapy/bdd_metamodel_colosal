@@ -37,7 +37,7 @@ def fm_to_splot(model: FeatureModel) -> str:
     lines.extend(add_features(model.root, 1))
     lines.append('</feature_tree>')
     lines.append('<constraints>')
-    lines.extend(add_constraints(model.ctcs))
+    lines.extend(add_constraints(model.get_logical_constraints()))
     lines.append('</constraints>')
     lines.append('</feature_model>')
     return '\n'.join(lines)

@@ -26,6 +26,7 @@ class FmToBDD(ModelToModel):
                                          ) as file:
             SPLOTWriter(path=file.name, source_model=self.source_model).transform()
             bdd_model = SPLOTReader(file.name).transform()
+            print(f'here is my BDD: {bdd_model}')
             bdd_model.variables = [f.name for f in self.source_model.get_features()]
             bdd_model.features_names = {f.name.replace(' ', ''): f.name 
                                         for f in self.source_model.get_features()}
