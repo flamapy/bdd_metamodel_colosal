@@ -61,8 +61,9 @@ class BDDModel(VariabilityModel):
         self._temporal_bdd_file = False
 
     def __del__(self) -> None:
-        if self._bdd_file is not None and self._temporal_bdd_file:
-            Path(self._bdd_file).unlink()
+        pass
+        #if self._bdd_file is not None and self._temporal_bdd_file:
+        #    Path(self._bdd_file).unlink()
 
     def _set_global_constants(self) -> None:
         """Private auxiliary function that configures the following global constants.

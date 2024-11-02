@@ -53,8 +53,9 @@ def build_bdd(model_file: str, bdd_model: BDDModel) -> None:
         raise FlamaException(message) from exc
 
     # Run binary logic2bdd's execution
-    #print("Synthesizing the BDD (this may take a while)...")
+    print("Synthesizing the BDD (this may take a while)...")
     bdd_model.run(BDDModel.LOGIC2BDD, file_name)
+    print("Synthesizing of the BDD finished.")
     # Check that logic2bdd's execution was successful
     try:
         bdd_model.check_file_existence(file_name, "dddmp")
