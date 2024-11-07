@@ -78,10 +78,11 @@ class BDDModel(VariabilityModel):
         caller_dir = os.getcwd()
         os.chdir(Path(__file__).parent)
         if self.system == 'Windows':
-            shell = subprocess.run(['wsl', 'pwd'], stdout=subprocess.PIPE, check=True)
+            shell = subprocess.Popen(['wsl', 'pwd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True, shell=True)
         else:
-            shell = subprocess.run(['pwd'], stdout=subprocess.PIPE, check=True)
-        self.bdd4var_dir = shell.stdout.decode(str(locale.getdefaultlocale()[1])).strip()
+            shell = subprocess.Popen(['pwd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True, shell=True)
+        stdout, sdterr = shell.communicate()
+        self.bdd4var_dir = stdout.strip()
         os.chdir(caller_dir)
 
     def run(self, binary: str, *args: Any) -> Any:
@@ -102,10 +103,12 @@ class BDDModel(VariabilityModel):
                 command = [bin_file, bin_dir]
             else:
                 command = [bin_file, bin_dir] + list(args)
-        return subprocess.run(command, 
-                              stdout=subprocess.PIPE, 
-                              stderr=subprocess.DEVNULL, 
-                              check=True)
+        return subprocess.Popen(command, 
+                                stdout=subprocess.PIPE, 
+                                stderr=subprocess.PIPE, 
+                                check=True,
+                                text=True, 
+                                shell=True)
 
     @staticmethod
     def check_file_existence(filename: str, extension: str = '') -> str:
