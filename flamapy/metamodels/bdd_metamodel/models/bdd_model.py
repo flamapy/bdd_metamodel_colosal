@@ -89,7 +89,7 @@ class BDDModel(VariabilityModel):
     def run(self, binary: str, *args: Any) -> Any:
         """Private auxiliary function to run binary files in Linux and Windows."""
         #bin_file = os.path.join(self.bdd4var_dir, 'bin', binary)
-        bin_dir = self.bdd4var_dir + '/bin'
+        bin_dir = self._bdd4var_dir + '/bin'
         bin_file = bin_dir + '/' + binary
         if self._system == 'Windows':
             if not args:
