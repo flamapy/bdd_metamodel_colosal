@@ -3,6 +3,7 @@ import re
 import stat
 import subprocess
 import locale
+import logging
 from platform import system 
 from pathlib import Path
 from typing import Any
@@ -112,6 +113,7 @@ class BDDModel(VariabilityModel):
     @staticmethod
     def check_file_existence(filename: str, extension: str = '') -> str:
         """Private auxiliary function that verifies if the input file exists."""
+        logging.info(f'Checking the existence of the file "{filename}"...')
         if not os.path.isfile(filename) and extension:
             filename = filename + '.' + extension
             if not os.path.isfile(filename):

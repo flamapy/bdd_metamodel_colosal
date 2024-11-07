@@ -6,6 +6,9 @@ from flamapy.metamodels.bdd_metamodel.models import BDDModel
 from flamapy.metamodels.bdd_metamodel.transformations import SPLOTReader, SPLOTWriter
 
 
+tempfile.tempdir = '/tmp'
+
+
 class FmToBDD(ModelToModel):
 
     @staticmethod
