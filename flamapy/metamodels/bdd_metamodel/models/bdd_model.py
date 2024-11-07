@@ -41,6 +41,8 @@ class BDDModel(VariabilityModel):
         # Maps to maintain original features' names
         self.features_names: dict[str, str] = {}  # names without spaces -> original names
         self.original_features_names: dict[str, str] = {}  # original names -> names without spaces
+        self._bdd4var_dir = None
+        self._system = None
         self._set_global_constants()
 
     @property
@@ -73,15 +75,15 @@ class BDDModel(VariabilityModel):
             which is needed to locate the binaries.
         """
         # get SYSTEM
-        self.system = system()
+        self._system = system()
         # get BDD4VAR_DIR
         caller_dir = os.getcwd()
         os.chdir(Path(__file__).parent)
-        if self.system == 'Windows':
-            shell = subprocess.run(['wsl', 'pwd'], stdout=subprocess.PIPE, check=True)
+        if self._system == 'Windows':
+            shell = subprocess.run(['wsl', 'pwd'], stdout=subprocess.PIPE, shell=True)
         else:
-            shell = subprocess.run(['pwd'], stdout=subprocess.PIPE, check=True)
-        self.bdd4var_dir = shell.stdout.decode(str(locale.getdefaultlocale()[1])).strip()
+            shell = subprocess.run(['pwd'], stdout=subprocess.PIPE, shell=True)
+        self._bdd4var_dir = shell.stdout.decode(str(locale.getdefaultlocale()[1])).strip()
         os.chdir(caller_dir)
 
     def run(self, binary: str, *args: Any) -> Any:
@@ -89,10 +91,7 @@ class BDDModel(VariabilityModel):
         #bin_file = os.path.join(self.bdd4var_dir, 'bin', binary)
         bin_dir = self.bdd4var_dir + '/bin'
         bin_file = bin_dir + '/' + binary
-        # Set execution permission
-        file_stats = os.stat(bin_file)
-        os.chmod(bin_file, file_stats.st_mode | stat.S_IEXEC)
-        if self.system == 'Windows':
+        if self._system == 'Windows':
             if not args:
                 command = ['wsl', bin_file, bin_dir]
             else:
@@ -104,8 +103,7 @@ class BDDModel(VariabilityModel):
                 command = [bin_file, bin_dir] + list(args)
         return subprocess.run(command, 
                               stdout=subprocess.PIPE, 
-                              stderr=subprocess.DEVNULL, 
-                              check=True)
+                              stderr=subprocess.PIPE)
 
     @staticmethod
     def check_file_existence(filename: str, extension: str = '') -> str:
