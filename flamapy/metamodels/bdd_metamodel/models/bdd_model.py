@@ -78,9 +78,9 @@ class BDDModel(VariabilityModel):
         caller_dir = os.getcwd()
         os.chdir(Path(__file__).parent)
         if self.system == 'Windows':
-            shell = subprocess.Popen(['wsl', 'pwd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True, shell=True)
+            shell = subprocess.Popen(['wsl', 'pwd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
         else:
-            shell = subprocess.Popen(['pwd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True, shell=True)
+            shell = subprocess.Popen(['pwd'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
         stdout, sdterr = shell.communicate()
         self.bdd4var_dir = stdout.strip()
         os.chdir(caller_dir)
@@ -105,8 +105,7 @@ class BDDModel(VariabilityModel):
                 command = [bin_file, bin_dir] + list(args)
         return subprocess.Popen(command, 
                                 stdout=subprocess.PIPE, 
-                                stderr=subprocess.PIPE, 
-                                check=True,
+                                stderr=subprocess.PIPE,
                                 text=True, 
                                 shell=True)
 
