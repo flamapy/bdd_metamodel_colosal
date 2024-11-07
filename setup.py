@@ -16,13 +16,13 @@ dev_requirements = read_requirements("requirements-dev.txt")
 
 setuptools.setup(
     name="flamapy-bdd-colosal",
-    version="2.0.0",
+    version="2.0.1",
     author="Flamapy",
     author_email="flamapy@us.es",
     description="bdd-plugin for the automated analysis of feature models",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/flamapy/bdd_metamodel",
+    url="https://github.com/flamapy/bdd_metamodel_colosal",
     packages=setuptools.find_namespace_packages(include=['flamapy.*']),
     classifiers=[
         "Programming Language :: Python :: 3",
