@@ -29,6 +29,10 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
     ],
+    include_package_data=True,
+    package_data={
+        'flamapy.metamodels.bdd_metamodel.models.bin': ['*'],
+    },
     python_requires='>=3.9',
     install_requires=requirements,
     extras_require={
