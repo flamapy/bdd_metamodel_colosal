@@ -11,7 +11,7 @@ from flamapy.metamodels.bdd_metamodel.operations import (
 from flamapy.metamodels.bdd_metamodel.transformations import FmToBDD
 
 
-FM_MODEL = 'resources/models/uvl_models/Pizzas.uvl'
+FM_MODEL = 'resources/models/uvl_models/MobilePhone.uvl'
 
 
 def main() -> None:
@@ -24,7 +24,7 @@ def main() -> None:
     n_configs = BDDConfigurationsNumber().execute(bdd_model).get_result()
     print(f'Number of configurations: {n_configs}')
 
-    elements = ['Pizza']
+    elements = ['Ice Cream', 'Vanilla']
     config = Configuration({f: True for f in elements})
     op_config = BDDConfigurationsNumber()
     op_config.set_partial_configuration(config)
@@ -45,12 +45,13 @@ def main() -> None:
     op_sampling = BDDSampling()
     op_sampling.set_sample_size(5)
     sample = op_sampling.execute(bdd_model).get_result()
-    print(f'Sample: {sample}')
-
-    configs = BDDConfigurations().execute(bdd_model).get_result()
-    for i, config in enumerate(configs):
+    for i, config in enumerate(sample):
         print(f'P {i}: {config}')
-    print(f'Products: {len(configs)}')
+
+    # configs = BDDConfigurations().execute(bdd_model).get_result()
+    # for i, config in enumerate(configs):
+    #     print(f'P {i}: {config}')
+    # print(f'Products: {len(configs)}')
 
 
 if __name__ == "__main__":

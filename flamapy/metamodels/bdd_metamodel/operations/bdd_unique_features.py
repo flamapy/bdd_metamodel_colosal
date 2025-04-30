@@ -36,8 +36,8 @@ def unique_features(bdd_model: BDDModel,
     else:
         assignments = [str(f) if selected else f'not {f}' for f, selected 
                        in config.elements.items()]
-    for feature in bdd_model.variables:
-        feature_safename = bdd_model.original_features_names[str(feature)]
+    for feature in bdd_model.mapping_names.keys():
+        feature_safename = bdd_model.mapping_names.get(feature)
         n_configs = count(bdd_model, assignments + [feature_safename])
         if n_configs == 1:
             unique_features_list.append(feature)

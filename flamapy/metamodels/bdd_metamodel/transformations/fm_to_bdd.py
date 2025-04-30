@@ -7,7 +7,8 @@ from flamapy.core.exceptions import FlamaException
 from flamapy.metamodels.fm_metamodel.models import FeatureModel
 from flamapy.metamodels.fm_metamodel.transformations.refactorings import FMSecureFeaturesNames
 from flamapy.metamodels.bdd_metamodel.models import BDDModel
-from flamapy.metamodels.bdd_metamodel.transformations import PLWriter, VarWriter
+from flamapy.metamodels.bdd_metamodel.transformations.pl_writer import PLWriter
+from flamapy.metamodels.bdd_metamodel.transformations.var_writer import VarWriter
 
 
 tempfile.tempdir = '/tmp'
