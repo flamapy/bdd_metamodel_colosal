@@ -1,10 +1,8 @@
 import os
 import re
-import stat
+import pathlib
 import subprocess
-import locale
-from platform import system 
-from pathlib import Path
+import logging
 from typing import Any
 
 from flamapy.core.models import VariabilityModel
@@ -17,13 +15,7 @@ class BDDModel(VariabilityModel):
     It relies on the bdd4va library (https://github.com/rheradio/bdd4va).
     """
 
-    # Binary programs available
-    SPLOT2LOGIC = 'splot2logic.sh'
-    LOGIC2BDD = 'logic2bdd.sh'
-    BDD_SAMPLER = 'BDDSampler.sh'
-    PRODUCT_DISTRIBUTION = 'product_distribution.sh'
-    FEATURE_PROBABILITIES = 'feature_probabilities.sh'
-    COUNTER = 'counter.sh'
+    LD_LIBRARY_PATH = 'LD_LIBRARY_PATH'
 
     @staticmethod
     def get_extension() -> str:
@@ -35,85 +27,75 @@ class BDDModel(VariabilityModel):
         The BDD relies on a dddmp file that stores a feature model's BDD encoding (dddmp is the
         format that the BDD library CUDD uses; check https://github.com/vscosta/cudd)
         """
-        self._bdd_file: str = ''
-        self._temporal_bdd_file: bool = True
-        self._variables: list[Any] = []
-        # Maps to maintain original features' names
-        self.features_names: dict[str, str] = {}  # names without spaces -> original names
-        self.original_features_names: dict[str, str] = {}  # original names -> names without spaces
-        self._bdd4var_dir = None
-        self._system = None
+        self.bdd_file: str = None
+        self.var_file: str = None
+        self.exp_file: str = None
+        self.sifting_file: str = None  # Variable ordering file (not used yet)
+        self.mapping_names: dict[str, str] = {}  # Maps to maintain original features' names
+        self._bddbin_dir = None
+        self._env = None
         self._set_global_constants()
-
-    @property
-    def variables(self) -> list[Any]:
-        return self._variables
-
-    @variables.setter
-    def variables(self, variables_list: list[Any]) -> None:
-        self._variables = variables_list
-
-    @property
-    def bdd_file(self) -> str:
-        return self._bdd_file
-
-    @bdd_file.setter
-    def bdd_file(self, dddmp_file: str) -> None:
-        self._bdd_file = dddmp_file
-        self._temporal_bdd_file = False
-
-    def __del__(self) -> None:
-        pass
-        #if self._bdd_file is not None and self._temporal_bdd_file:
-        #    Path(self._bdd_file).unlink()
 
     def _set_global_constants(self) -> None:
         """Private auxiliary function that configures the following global constants.
 
-            + SYSTEM, which stores the operating system running bdd4va: Linux or Windows.
-            + BDD4VAR_DIR, which stores the path of the module bdd4va, 
+            + BDDBIN_DIR, which stores the path of the module bdd4va, 
             which is needed to locate the binaries.
+            + ENV, which stores the environment variables of the CUDD library.
         """
-        # get SYSTEM
-        self._system = system()
-        # get BDD4VAR_DIR
-        caller_dir = os.getcwd()
-        os.chdir(Path(__file__).parent)
-        if self._system == 'Windows':
-            shell = subprocess.run(['wsl', 'pwd'], stdout=subprocess.PIPE, shell=True)
-        else:
-            shell = subprocess.run(['pwd'], stdout=subprocess.PIPE, shell=True)
-        self._bdd4var_dir = shell.stdout.decode(str(locale.getdefaultlocale()[1])).strip()
+        caller_dir = os.getcwd()  # get BDDBIN_DIR
+        os.chdir(pathlib.Path(__file__).parent)
+        shell = subprocess.Popen(['pwd'], 
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, 
+                                 text=True, 
+                                 shell=True)
+        stdout, _ = shell.communicate()
+        self._bddbin_dir = stdout.strip()
         os.chdir(caller_dir)
+        self._env = os.environ.copy()
+        self._env[BDDModel.LD_LIBRARY_PATH] = self._bddbin_dir + '/bin:' + \
+                                              self._env.get(BDDModel.LD_LIBRARY_PATH, '')
 
-    def run(self, binary: str, *args: Any) -> Any:
-        """Private auxiliary function to run binary files in Linux and Windows."""
-        #bin_file = os.path.join(self.bdd4var_dir, 'bin', binary)
-        bin_dir = self._bdd4var_dir + '/bin'
+    def __del__(self) -> None:
+        self.delete_files()
+
+    def delete_files(self) -> None:
+        """Delete the files created by the BDD library."""
+        if self.var_file is not None:
+            path = pathlib.Path(self.var_file)
+            base = path.parent
+            filename = path.stem
+            os.remove(self.var_file)
+            self.var_file = None
+        if self.exp_file is not None:
+            os.remove(self.exp_file)
+            self.exp_file = None
+        if self.sifting_file is not None:
+            os.remove(self.sifting_file)
+            self.sifting_file = None
+        if self.bdd_file is not None:
+            os.remove(self.bdd_file)
+            self.bdd_file = None
+        # Remove auxiliary generated files
+        AUXILIARY_FILES = ['.dddmp.data', '.dddmp.reorder', '.tree', '.dddmp.applied']
+        for aux_file in AUXILIARY_FILES: 
+            path = pathlib.Path(base / (filename + aux_file))
+            if path.exists():
+                os.remove(path)
+
+    def run(self, binary: str, *args: Any) -> tuple[str, str]:
+        """Auxiliary function to run binary files. Returns the stdout and stderr of the command."""
+        bin_dir = self._bddbin_dir + '/bin'
         bin_file = bin_dir + '/' + binary
-        if self._system == 'Windows':
-            if not args:
-                command = ['wsl', bin_file, bin_dir]
-            else:
-                command = ['wsl', bin_file, bin_dir] + list(args)
-        else:
-            if not args:
-                command = [bin_file, bin_dir]
-            else:
-                command = [bin_file, bin_dir] + list(args)
-        return subprocess.run(command, 
-                              stdout=subprocess.PIPE, 
-                              stderr=subprocess.PIPE)
-
-    @staticmethod
-    def check_file_existence(filename: str, extension: str = '') -> str:
-        """Private auxiliary function that verifies if the input file exists."""
-        if not os.path.isfile(filename) and extension:
-            filename = filename + '.' + extension
-            if not os.path.isfile(filename):
-                message = 'The file "' + filename + '" doesn\'t exist.'
-                raise FlamaException(message)
-        return filename
+        command = [bin_file] + list(args)
+        process = subprocess.Popen(command,
+                                   env=self._env, 
+                                   stdout=subprocess.PIPE, 
+                                   stderr=subprocess.PIPE,
+                                   text=True)
+        stdout, stderr = process.communicate()
+        return stdout, stderr
 
     @staticmethod
     def expand_assignment(bdd_file: str, feature_assignment: list[str]) -> list[str]:
@@ -151,3 +133,10 @@ class BDDModel(VariabilityModel):
             if feat:
                 expanded_assignment.append(feat)
         return expanded_assignment
+
+    def __str__(self) -> str:
+        res = f'BDD file: {self.bdd_file}\r\n'
+        res += f'  Var file: {self.var_file}\r\n'
+        res += f'  Exp file: {self.exp_file}\r\n'
+        res += f'  Sifting file: {self.sifting_file}\r\n'
+        return res

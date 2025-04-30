@@ -1,10 +1,13 @@
 import re
-import locale
 from typing import Any, Optional, cast
 
 from flamapy.core.models import VariabilityModel
+from flamapy.core.exceptions import FlamaException
 from flamapy.metamodels.bdd_metamodel.models import BDDModel
 from flamapy.metamodels.bdd_metamodel.operations.interfaces import ProductDistribution
+
+
+PRODUCT_DISTRIBUTION_BIN = 'product_distribution'
 
 
 class BDDProductDistribution(ProductDistribution):
@@ -48,13 +51,10 @@ class BDDProductDistribution(ProductDistribution):
 
 
 def product_distribution(bdd_model: BDDModel) -> list[int]: 
-    # Check bdd_file
-    bdd_file = bdd_model.check_file_existence(bdd_model.bdd_file, 'dddmp')
-
-    product_distribution_process = bdd_model.run(BDDModel.PRODUCT_DISTRIBUTION, 
-                                                 bdd_file)
-    result = product_distribution_process.stdout.decode(locale.getdefaultlocale()[1])
-    line_iterator = iter(result.splitlines())
+    stdout, stderr = bdd_model.run(PRODUCT_DISTRIBUTION_BIN, bdd_model.bdd_file)
+    if not stdout:
+        raise FlamaException(f"Couldn't calculate the product distribution: {stderr}")
+    line_iterator = iter(stdout.splitlines())
     distribution = []
     for line in line_iterator:
         parsed_line = re.compile(r'\s+').split(line.strip())

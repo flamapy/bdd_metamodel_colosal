@@ -1,11 +1,14 @@
 import re
-import locale 
 from typing import Any, Optional, cast
 
 from flamapy.core.models import VariabilityModel
+from flamapy.core.exceptions import FlamaException
 from flamapy.metamodels.configuration_metamodel.models import Configuration
 from flamapy.metamodels.bdd_metamodel.models import BDDModel
 from flamapy.metamodels.bdd_metamodel.operations.interfaces import FeatureInclusionProbability
+
+
+FEATURE_PROBABILITIES_BIN = 'feature_probabilities'
 
 
 class BDDFeatureInclusionProbability(FeatureInclusionProbability):
@@ -76,21 +79,19 @@ def feature_inclusion_probability(bdd_model: BDDModel,
                                   precision: int,
                                   feature_assignment: Optional[list[str]] = None
                                   ) -> dict[Any, float]:
-    # Check bdd_file
-    bdd_file = bdd_model.check_file_existence(bdd_model.bdd_file, 'dddmp')
     if feature_assignment is None:
-        feature_probabilities_process = bdd_model.run(BDDModel.FEATURE_PROBABILITIES, 
-                                                      bdd_file)
+        stdout, stderr = bdd_model.run(FEATURE_PROBABILITIES_BIN, bdd_model.bdd_file)
     else:
-        expanded_assignment = BDDModel.expand_assignment(bdd_file, feature_assignment)
-        feature_probabilities_process = bdd_model.run(BDDModel.FEATURE_PROBABILITIES, 
-                                                      *expanded_assignment, 
-                                                      bdd_file)
-    result = feature_probabilities_process.stdout.decode(locale.getdefaultlocale()[1])
-    line_iterator = iter(result.splitlines())
+        expanded_assignment = BDDModel.expand_assignment(bdd_model.bdd_file, feature_assignment)
+        stdout, stderr = bdd_model.run(FEATURE_PROBABILITIES_BIN,
+                                       *expanded_assignment, 
+                                       bdd_model.bdd_file)
+    if not stdout:
+        raise FlamaException(f"Couldn't calculate the feature inclusion probabilities: {stderr}")
+    line_iterator = iter(stdout.splitlines())
     probabilities = {}
     for line in line_iterator:
         parsed_line = re.compile(r'\s+').split(line.strip())
-        original_feature_name = bdd_model.features_names.get(parsed_line[0])
+        original_feature_name = bdd_model.mapping_names.get(parsed_line[0])
         probabilities[original_feature_name] = round(float(parsed_line[1]), precision)
     return probabilities

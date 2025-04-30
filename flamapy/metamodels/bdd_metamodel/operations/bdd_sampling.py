@@ -9,6 +9,9 @@ from flamapy.metamodels.configuration_metamodel.models import Configuration
 from flamapy.metamodels.bdd_metamodel.models import BDDModel
 
 
+BDD_SAMPLER_BIN = 'BDDSampler'
+
+
 class BDDSampling(Sampling):
     """Generates a uniform random sample of a given size with or without replacement.
 
@@ -64,16 +67,16 @@ def sample(bdd_model: BDDModel,
            with_replacement: bool,
            partial_configuration: Optional[Configuration]  # pylint: disable=unused-argument
            ) -> list[Configuration]:
-    # BDDSampler requires the bdd_file with the '.dddmp' extension.
-    bdd_file = bdd_model.check_file_existence(bdd_model.bdd_file, 'dddmp')
-
-    # Run binary BDDSampler
-    parameters = ["-names"]
+    parameters = ['-names']
     if not with_replacement:
-        parameters.append("-norep")
-    sample_process = bdd_model.run(BDDModel.BDD_SAMPLER, str(sample_size), bdd_file)
-    result = sample_process.stdout.decode(locale.getdefaultlocale()[1])
-    line_iterator = iter(result.splitlines())
+        parameters.append('-norep')
+    stdout, stderr = bdd_model.run(BDD_SAMPLER_BIN,
+                                   *parameters, 
+                                   str(sample_size),
+                                   bdd_model.bdd_file)
+    if not stdout:
+        raise FlamaException(f"Couldn't generate the sample: {stderr}")
+    line_iterator = iter(stdout.splitlines())
     configurations = []
     for line in line_iterator:
         parsed_line = re.compile(r'\s+').split(line)

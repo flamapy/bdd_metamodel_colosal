@@ -1,10 +1,13 @@
-import locale
 from typing import Optional, cast
 
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import ConfigurationsNumber
+from flamapy.core.exceptions import FlamaException
 from flamapy.metamodels.configuration_metamodel.models import Configuration
 from flamapy.metamodels.bdd_metamodel.models.bdd_model import BDDModel
+
+
+COUNTER_BIN = 'counter'
 
 
 class BDDConfigurationsNumber(ConfigurationsNumber):
@@ -55,12 +58,11 @@ def count(bdd_model: BDDModel, feature_assignment: Optional[list[str]] = None) -
                 (e.g., ["f1", "not f3", "f5"])
         :return: The number of valid configurations
     """
-    # Check bdd_file
-    bdd_file = bdd_model.check_file_existence(bdd_model.bdd_file, 'dddmp')
     if feature_assignment is None:
-        count_process = bdd_model.run(BDDModel.COUNTER, bdd_file)
+        stdout, stderr = bdd_model.run(COUNTER_BIN, bdd_model.bdd_file)
     else:
-        expanded_assignment = BDDModel.expand_assignment(bdd_file, feature_assignment)
-        count_process = bdd_model.run(BDDModel.COUNTER, *expanded_assignment, bdd_file)
-    result = count_process.stdout.decode(locale.getdefaultlocale()[1])
-    return int(result)
+        expanded_assignment = BDDModel.expand_assignment(bdd_model.bdd_file, feature_assignment)
+        stdout, stderr = bdd_model.run(COUNTER_BIN, *expanded_assignment, bdd_model.bdd_file)
+    if not stdout:
+        raise FlamaException(f"Couldn't calculate the number of configurations: {stderr}")
+    return int(stdout)
