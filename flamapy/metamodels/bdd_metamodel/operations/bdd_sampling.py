@@ -1,5 +1,4 @@
 import re
-import locale
 from typing import Optional, cast
 
 from flamapy.core.models import VariabilityModel

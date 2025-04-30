@@ -4,9 +4,6 @@ from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import ConfigurationsNumber
 from flamapy.core.exceptions import FlamaException
 from flamapy.metamodels.configuration_metamodel.models import Configuration
-from flamapy.metamodels.fm_metamodel.transformations.refactorings.fm_secure_features_names import (
-    secure_name
-)
 from flamapy.metamodels.bdd_metamodel.models.bdd_model import BDDModel
 
 
