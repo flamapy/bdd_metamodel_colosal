@@ -4,6 +4,9 @@ from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import ConfigurationsNumber
 from flamapy.core.exceptions import FlamaException
 from flamapy.metamodels.configuration_metamodel.models import Configuration
+from flamapy.metamodels.fm_metamodel.transformations.refactorings.fm_secure_features_names import (
+    secure_name
+)
 from flamapy.metamodels.bdd_metamodel.models.bdd_model import BDDModel
 
 
@@ -44,6 +47,7 @@ def configurations_number(bdd_model: BDDModel,
         :return: The number of valid configurations
     """
     if partial_configuration is not None:
+        partial_configuration = secure_feature_names(bdd_model, partial_configuration)
         result = count(bdd_model, [str(f) if selected else f'not {f}' for f, selected in 
                                    partial_configuration.elements.items()])
     else:
@@ -66,3 +70,10 @@ def count(bdd_model: BDDModel, feature_assignment: Optional[list[str]] = None) -
     if not stdout:
         raise FlamaException(f"Couldn't calculate the number of configurations: {stderr}")
     return int(stdout)
+
+
+def secure_feature_names(bdd_model: BDDModel, configuration: Configuration) -> Configuration:
+    elements = {}
+    for elem, selected in configuration.elements.items():
+        elements[bdd_model.mapping_names[elem]] = selected 
+    return Configuration(elements)

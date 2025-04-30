@@ -31,10 +31,25 @@ class BDDModel(VariabilityModel):
         self.var_file: str = None
         self.exp_file: str = None
         self.sifting_file: str = None  # Variable ordering file (not used yet)
-        self.mapping_names: dict[str, str] = {}  # Maps to maintain original features' names
+        self._mapping_names: dict[str, str] = {}  # Maps to maintain original features' names
+        self._mapping_names_inv: dict[str, str] = {}
         self._bddbin_dir = None
         self._env = None
         self._set_global_constants()
+
+    @property
+    def mapping_names(self) -> dict[str, str]:
+        return self._mapping_names
+    
+    @property
+    def mapping_names_inv(self) -> dict[str, str]:
+        return self._mapping_names_inv
+    
+    @mapping_names.setter
+    def mapping_names(self, mapping: dict[str, str]) -> None:
+        """Set the mapping names of the BDD model."""
+        self._mapping_names = mapping
+        self._mapping_names_inv = {v: k for k, v in mapping.items()}
 
     def _set_global_constants(self) -> None:
         """Private auxiliary function that configures the following global constants.
@@ -124,11 +139,11 @@ class BDDModel(VariabilityModel):
                 if feat_match:
                     feat = feat_match.group(1)
                     if varnames.count(feat) == 0:
-                        raise FlamaException(f'{feat} is not a valid feature of {bdd_file}')
+                        raise FlamaException(f'{feat} is not a valid feature of {bdd_file}.')
                     feat += "=false"
             else:
                 if varnames.count(feature) == 0:
-                    raise FlamaException(feature + " is not a valid feature of " + bdd_file)
+                    raise FlamaException(f'{feature} is not a valid feature of {bdd_file}.')
                 feat = feature + "=true"
             if feat:
                 expanded_assignment.append(feat)

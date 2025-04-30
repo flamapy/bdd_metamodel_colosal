@@ -57,7 +57,7 @@ def to_exp(feature_model: FeatureModel) -> list[str]:
         for relation in feature.get_relations():
             formulas.append(get_relation_formula(relation))
             features.extend(relation.children)
-    for constraint in feature_model.get_constraints():
+    for constraint in feature_model.get_logical_constraints():
         formulas.append(get_constraint_formula(constraint))
     return formulas
 

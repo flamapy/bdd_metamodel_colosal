@@ -50,8 +50,8 @@ class BDDFeatureInclusionProbability(FeatureInclusionProbability):
 
     def execute(self, model: VariabilityModel) -> 'BDDFeatureInclusionProbability':
         bdd_model = cast(BDDModel, model)
-        self.result = feature_inclusion_probability(bdd_model, self.precision,
-                                                    self.partial_configuration)
+        self.result = feature_inclusion_probabilities(bdd_model, self.precision,
+                                                      self.partial_configuration)
         return self
 
 
@@ -66,6 +66,7 @@ def feature_inclusion_probabilities(bdd_model: BDDModel,
         :return: The feature inclusion probabilities.
     """
     if partial_configuration is not None:
+        partial_configuration = secure_feature_names(bdd_model, partial_configuration)
         result = feature_inclusion_probability(bdd_model, precision,
                                                [str(f) if selected else f'not {f}' 
                                                 for f, selected in 
@@ -92,6 +93,13 @@ def feature_inclusion_probability(bdd_model: BDDModel,
     probabilities = {}
     for line in line_iterator:
         parsed_line = re.compile(r'\s+').split(line.strip())
-        original_feature_name = bdd_model.mapping_names.get(parsed_line[0])
+        original_feature_name = bdd_model.mapping_names_inv.get(parsed_line[0])
         probabilities[original_feature_name] = round(float(parsed_line[1]), precision)
     return probabilities
+
+
+def secure_feature_names(bdd_model: BDDModel, configuration: Configuration) -> Configuration:
+    elements = {}
+    for elem, selected in configuration.elements.items():
+        elements[bdd_model.mapping_names[elem]] = selected 
+    return Configuration(elements)

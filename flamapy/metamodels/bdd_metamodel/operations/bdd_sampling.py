@@ -87,7 +87,7 @@ def sample(bdd_model: BDDModel,
                 if element == "not":
                     negation = True
                 else:
-                    configuration[element] = not negation
+                    configuration[bdd_model.mapping_names_inv.get(element)] = not negation
                     negation = False
         configurations.append(Configuration(configuration))
     return configurations

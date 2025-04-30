@@ -5,7 +5,8 @@ from flamapy.metamodels.bdd_metamodel.operations import (
     BDDConfigurationsNumber,
     BDDProductDistribution,
     BDDFeatureInclusionProbability,
-    BDDSampling
+    BDDSampling,
+    BDDConfigurations
 )
 from flamapy.metamodels.bdd_metamodel.transformations import FmToBDD
 
@@ -18,11 +19,12 @@ def main() -> None:
     fm_model = dm.use_transformation_t2m(FM_MODEL, 'fm')
     bdd_model = FmToBDD(fm_model).transform()
     print(f'BDD model: {bdd_model}')
+    print(bdd_model.mapping_names)
 
     n_configs = BDDConfigurationsNumber().execute(bdd_model).get_result()
     print(f'Number of configurations: {n_configs}')
 
-    elements = ['Pizza', 'Topping', 'Ham']
+    elements = ['Pizza']
     config = Configuration({f: True for f in elements})
     op_config = BDDConfigurationsNumber()
     op_config.set_partial_configuration(config)
@@ -44,6 +46,12 @@ def main() -> None:
     op_sampling.set_sample_size(5)
     sample = op_sampling.execute(bdd_model).get_result()
     print(f'Sample: {sample}')
+
+    configs = BDDConfigurations().execute(bdd_model).get_result()
+    for i, config in enumerate(configs):
+        print(f'P {i}: {config}')
+    print(f'Products: {len(configs)}')
+
 
 if __name__ == "__main__":
     main()

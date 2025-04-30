@@ -1,9 +1,14 @@
+import re
 from typing import Any, cast
 
 from flamapy.core.models import VariabilityModel
 from flamapy.core.operations import Configurations
+from flamapy.core.exceptions import FlamaException
+from flamapy.metamodels.configuration_metamodel.models import Configuration
 from flamapy.metamodels.bdd_metamodel.models import BDDModel
-from flamapy.metamodels.bdd_metamodel.operations import BDDConfigurationsNumber, BDDSampling
+
+
+GEN_PRODUCTS_BIN = 'genProducts'
 
 
 class BDDConfigurations(Configurations):
@@ -24,7 +29,21 @@ class BDDConfigurations(Configurations):
 
 
 def configurations(bdd_model: BDDModel) -> list[Any]:
-    n_configs = BDDConfigurationsNumber().execute(bdd_model).get_result()
-    sampling_op = BDDSampling()
-    sampling_op.set_sample_size(n_configs)
-    return sampling_op.execute(bdd_model).get_result()
+    stdout, stderr = bdd_model.run(GEN_PRODUCTS_BIN, bdd_model.bdd_file)
+    if not stdout:
+        raise FlamaException(f"Couldn't generate products: {stderr}")
+    line_iterator = iter(stdout.splitlines())
+    configurations = []
+    for line in line_iterator:
+        parsed_line = re.compile(r'\s+').split(line)
+        configuration = {}
+        negation = False
+        for element in parsed_line:
+            if element != "":
+                if element == "not":
+                    negation = True
+                else:
+                    configuration[bdd_model.mapping_names_inv.get(element)] = not negation
+                    negation = False
+        configurations.append(Configuration(configuration))
+    return configurations
