@@ -12,20 +12,21 @@
 ## Description
 This plugin supports Binary Decision Diagrams (BDDs) representations for feature models.
 
-The plugin is based on [flamapy](https://github.com/flamapy/core) and thus, it follows the same architecture.
+The plugin is based on [flamapy](https://github.com/flamapy) and thus, it follows the same architecture.
 
 The BDD plugin relies on the [bbd4va](https://github.com/rheradio/bdd4va) library to synthetize and manipulate BDDs.
 
 
 ## Requirements and Installation
 - Python 3.9+
-- This plugin depends on the [flamapy core](https://github.com/flamapy/core) and on the [Feature Model plugin](https://github.com/flamapy/fm_metamodel).
+- libgmp-dev package
+- This plugin depends on the [flamapy framework](https://github.com/flamapy/flamapy_fw) and on the [Feature Model plugin](https://github.com/flamapy/fm_metamodel).
 
 ```
-pip install flamapy flamapy-fm flamapy-bdd
+pip install flamapy-fw flamapy-fm flamapy-bdd
 ```
 
-We have tested the plugin on Linux, but Windows is also supported under `wsl`.
+We have tested the plugin on Linux.
 
 
 ## Functionality and usage
@@ -142,11 +143,11 @@ bdd_model = DDDMPReader(path='path/to/my_bdd.dddmp').transform()
 To contribute in the development of this plugin:
 
 1. Fork the repository into your GitHub account.
-2. Clone the repository: `git@github.com:<<username>>/bdd_metamodel.git`
+2. Clone the repository: `git@github.com:<<username>>/bdd_metamodel_colosal.git`
 3. Create a virtual environment: `python -m venv env`
 4. Activate the virtual environment: `source env/bin/activate`
 5. Install the plugin dependencies: `pip install flamapy flamapy-fm`
-6. Install the BDD plugin from the source code: `pip install -e bdd_metamodel`
+6. Install the BDD plugin from the source code: `pip install -e bdd_metamodel_colosal`
 
 Please try to follow the standards code quality to contribute to this plugin before creating a Pull Request:
 
