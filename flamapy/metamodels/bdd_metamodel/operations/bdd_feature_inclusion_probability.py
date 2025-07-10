@@ -80,6 +80,8 @@ def feature_inclusion_probability(bdd_model: BDDModel,
                                   precision: int,
                                   feature_assignment: Optional[list[str]] = None
                                   ) -> dict[Any, float]:
+    assert bdd_model.bdd_file is not None
+    
     if feature_assignment is None:
         stdout, stderr = bdd_model.run(FEATURE_PROBABILITIES_BIN, bdd_model.bdd_file)
     else:

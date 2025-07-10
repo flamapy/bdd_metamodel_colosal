@@ -2,7 +2,6 @@ import os
 import re
 import pathlib
 import subprocess
-import logging
 from typing import Any
 
 from flamapy.core.models import VariabilityModel
@@ -27,29 +26,29 @@ class BDDModel(VariabilityModel):
         The BDD relies on a dddmp file that stores a feature model's BDD encoding (dddmp is the
         format that the BDD library CUDD uses; check https://github.com/vscosta/cudd)
         """
-        self.bdd_file: str = None
-        self.var_file: str = None
-        self.exp_file: str = None
-        self.sifting_file: str = None  # Variable ordering file (not used yet)
+        self.bdd_file: str | None = None
+        self.var_file: str | None = None
+        self.exp_file: str | None = None
+        self.sifting_file: str | None = None  # Variable ordering file (not used yet)
         self._mapping_names: dict[str, str] = {}  # Maps to maintain original features' names
         self._mapping_names_inv: dict[str, str] = {}
-        self._bddbin_dir = None
-        self._env = None
+        self._bddbin_dir: str | None = None
+        self._env: dict[str, str] = {}
         self._set_global_constants()
 
     @property
     def mapping_names(self) -> dict[str, str]:
         return self._mapping_names
     
-    @property
-    def mapping_names_inv(self) -> dict[str, str]:
-        return self._mapping_names_inv
-    
     @mapping_names.setter
     def mapping_names(self, mapping: dict[str, str]) -> None:
         """Set the mapping names of the BDD model."""
         self._mapping_names = mapping
         self._mapping_names_inv = {v: k for k, v in mapping.items()}
+
+    @property
+    def mapping_names_inv(self) -> dict[str, str]:
+        return self._mapping_names_inv
 
     def _set_global_constants(self) -> None:
         """Private auxiliary function that configures the following global constants.
@@ -101,6 +100,7 @@ class BDDModel(VariabilityModel):
 
     def run(self, binary: str, *args: Any) -> tuple[str, str]:
         """Auxiliary function to run binary files. Returns the stdout and stderr of the command."""
+        assert self._bddbin_dir is not None
         bin_dir = self._bddbin_dir + '/bin'
         bin_file = bin_dir + '/' + binary
         command = [bin_file] + list(args)

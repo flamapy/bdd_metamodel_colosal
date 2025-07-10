@@ -59,6 +59,8 @@ def count(bdd_model: BDDModel, feature_assignment: Optional[list[str]] = None) -
                 (e.g., ["f1", "not f3", "f5"])
         :return: The number of valid configurations
     """
+    assert bdd_model.bdd_file is not None
+    
     if feature_assignment is None:
         stdout, stderr = bdd_model.run(COUNTER_BIN, bdd_model.bdd_file)
     else:

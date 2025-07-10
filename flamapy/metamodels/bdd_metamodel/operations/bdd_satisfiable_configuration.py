@@ -1,4 +1,4 @@
-from typing import Any, Optional, cast
+from typing import cast
 
 from flamapy.core.models import VariabilityModel
 from flamapy.metamodels.configuration_metamodel.models import Configuration
@@ -11,7 +11,7 @@ class BDDSatisfiableConfiguration(SatisfiableConfiguration):
 
     def __init__(self) -> None:
         self._result: bool = False
-        self._configuration: Optional[Configuration] = None
+        self._configuration: Configuration = None
 
     def set_configuration(self, configuration: Configuration) -> None:
         self._configuration = configuration
@@ -29,7 +29,7 @@ class BDDSatisfiableConfiguration(SatisfiableConfiguration):
 
 
 def is_satisfiable(bdd_model: BDDModel,
-                   configuration: Optional[Configuration]) -> bool:
+                   configuration: Configuration) -> bool:
     config_number_op = BDDConfigurationsNumber()
     if not configuration.is_full:
         config_number_op.set_partial_configuration(configuration)
