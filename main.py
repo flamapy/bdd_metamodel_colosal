@@ -1,17 +1,15 @@
 from flamapy.core.discover import DiscoverMetamodels
 from flamapy.metamodels.configuration_metamodel.models import Configuration
-from flamapy.metamodels.bdd_metamodel.models import BDDModel
 from flamapy.metamodels.bdd_metamodel.operations import (
     BDDConfigurationsNumber,
     BDDProductDistribution,
     BDDFeatureInclusionProbability,
-    BDDSampling,
-    BDDConfigurations
+    BDDSampling
 )
 from flamapy.metamodels.bdd_metamodel.transformations import FmToBDD
 
 
-FM_MODEL = 'resources/models/uvl_models/MobilePhone.uvl'
+FM_MODEL = 'resources/models/uvl_models/Pizzas.uvl'
 
 
 def main() -> None:

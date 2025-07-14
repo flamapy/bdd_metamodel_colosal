@@ -1,7 +1,6 @@
 import pytest
 from collections import defaultdict
 
-from flamapy.metamodels.configuration_metamodel.models import Configuration
 from flamapy.metamodels.fm_metamodel.transformations import UVLReader
 from flamapy.metamodels.bdd_metamodel.models import BDDModel
 from flamapy.metamodels.bdd_metamodel.transformations import (

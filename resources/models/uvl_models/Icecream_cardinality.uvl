@@ -9,7 +9,7 @@ features
                 or
                     Lemon
                     Vanilla
-                    Chocolate
+                    Chocolate cardinality [1..3]  // Clonable feature
                         alternative
                             White
                             Dark
