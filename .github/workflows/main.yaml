@@ -51,7 +51,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install flamapy-fm
           pip install .
-          pip install pytest==5.4.3
+          pip install pytest==8.4.1
           sudo add-apt-repository universe
           sudo apt update
           sudo apt install graphviz -y
