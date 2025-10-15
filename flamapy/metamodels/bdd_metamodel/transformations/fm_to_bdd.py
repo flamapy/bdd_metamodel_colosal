@@ -1,5 +1,4 @@
 import os
-import copy
 import pathlib
 import tempfile
 
@@ -9,9 +8,6 @@ from flamapy.metamodels.fm_metamodel.models import FeatureModel
 from flamapy.metamodels.fm_metamodel.transformations import (
     FMSecureFeaturesNames,
     FlatFM
-)
-from flamapy.metamodels.fm_metamodel.transformations.refactorings import (
-    FeatureCardinalityRefactoring
 )
 from flamapy.metamodels.bdd_metamodel.models import BDDModel
 from flamapy.metamodels.bdd_metamodel.transformations.pl_writer import PLWriter
@@ -44,10 +40,6 @@ class FmToBDD(ModelToModel):
         feature_model = self.source_model
         if feature_model.imports:
             feature_model = FlatFM(feature_model).transform()
-        # Apply the feature cardinality refactoring to the source model
-        if FeatureCardinalityRefactoring(feature_model).is_applicable():
-            feature_model = copy.deepcopy(feature_model)
-            feature_model = FeatureCardinalityRefactoring(feature_model).transform()
 
         # Secure the features names and create a mapping with the original names
         fmsfn = FMSecureFeaturesNames(feature_model)
