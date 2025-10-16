@@ -62,7 +62,7 @@ def product_distribution(bdd_model: BDDModel) -> list[int]:
     return distribution
 
 
-def descriptive_statistics(prod_dist: list[int]) -> dict[str, Any]: # noqa: MC0001
+def descriptive_statistics(prod_dist: list[int]) -> dict[str, Any]:
     total_elements = sum(prod_dist)
     if total_elements == 0:
         return {
