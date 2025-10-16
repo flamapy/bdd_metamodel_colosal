@@ -40,6 +40,7 @@ class FmToBDD(ModelToModel):
         feature_model = self.source_model
         if feature_model.imports:
             feature_model = FlatFM(feature_model).transform()
+        self.source_model = feature_model
 
         # Secure the features names and create a mapping with the original names
         fmsfn = FMSecureFeaturesNames(feature_model)
