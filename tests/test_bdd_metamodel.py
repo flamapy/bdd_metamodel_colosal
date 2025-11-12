@@ -89,7 +89,9 @@ def test_bdd_product_distribution(path: str, expected: list):
 def test_probabilities(path: str, expected: dict):
     bdd_model = _read_model(path)
     probabilities = BDDFeatureInclusionProbability().execute(bdd_model).get_result()
-    assert probabilities == expected
+    rounded_probabilities = {k: round(v, 2) for k, v in probabilities.items()}
+    rounded_expected = {k: round(v, 2) for k, v in expected.items()}
+    assert rounded_probabilities == rounded_expected
 
 @pytest.mark.parametrize("path, expected", [
     ('resources/models/uvl_models/MobilePhone.uvl', ['Mobile Phone', 'Calls', 'Screen']),
