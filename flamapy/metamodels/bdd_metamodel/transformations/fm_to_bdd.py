@@ -5,10 +5,7 @@ import tempfile
 from flamapy.core.transformations import ModelToModel
 from flamapy.core.exceptions import FlamaException
 from flamapy.metamodels.fm_metamodel.models import FeatureModel
-from flamapy.metamodels.fm_metamodel.transformations import (
-    FMSecureFeaturesNames,
-    FlatFM
-)
+from flamapy.metamodels.fm_metamodel.transformations import FMSecureFeaturesNames
 from flamapy.metamodels.bdd_metamodel.models import BDDModel
 from flamapy.metamodels.bdd_metamodel.transformations.pl_writer import PLWriter
 from flamapy.metamodels.bdd_metamodel.transformations.var_writer import VarWriter
@@ -36,14 +33,8 @@ class FmToBDD(ModelToModel):
         self.bdd_model = BDDModel()
 
     def transform(self) -> BDDModel:
-        # FlatFM if the feature model contains imports
-        feature_model = self.source_model
-        if feature_model.imports:
-            feature_model = FlatFM(feature_model).transform()
-        self.source_model = feature_model
-
         # Secure the features names and create a mapping with the original names
-        fmsfn = FMSecureFeaturesNames(feature_model)
+        fmsfn = FMSecureFeaturesNames(self.source_model)
         secure_fm = fmsfn.transform()
         mapping_names = fmsfn.mapping_names
         self.bdd_model.mapping_names = mapping_names
